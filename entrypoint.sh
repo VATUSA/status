@@ -70,6 +70,12 @@ check_configured() {
 initialize_system() {
   echo "Initializing Cachet container ..."
 
+  #Load env file from Docker
+  set -a
+  source /run/secrets/key
+  source /run/secrets/status.env
+  set +a
+
   APP_KEY=${APP_KEY:-}
   APP_ENV=${APP_ENV:-development}
   APP_DEBUG=${APP_DEBUG:-true}
@@ -133,7 +139,7 @@ initialize_system() {
   NEXMO_SMS_FROM=${NEXMO_SMS_FROM:-Cachet}
 
   PHP_MAX_CHILDREN=${PHP_MAX_CHILDREN:-5}
-  
+
   TRUSTED_PROXIES=${TRUSTED_PROXIES:-}
 
   # configure env file
@@ -184,13 +190,13 @@ initialize_system() {
   sed 's,{{NEXMO_SMS_FROM}},'"${NEXMO_SMS_FROM}"',g' -i /var/www/html/.env
 
   sed 's,{{PHP_MAX_CHILDREN}},'"${PHP_MAX_CHILDREN}"',g' -i /etc/php7/php-fpm.d/www.conf
-  
+
   sed 's,{{TRUSTED_PROXIES}},'"${TRUSTED_PROXIES}"',g' -i /var/www/html/.env
-  
+
   if [[ -z "${APP_KEY}" ]]; then
     keygen="$(php artisan key:generate)"
     APP_KEY=$(echo "${keygen}" | grep -oP '(?<=\[).*(?=\])')
-    echo "ERROR: Please set the 'APP_KEY=${APP_KEY}' environment variable at runtime or in docker-compose.yml and re-launch"
+    echo "ERROR: Please set the 'APP_KEY=${APP_KEY}' environment variable at runtime or in env file and re-launch"
     exit 0
   fi
 
