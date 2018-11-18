@@ -2,7 +2,7 @@ sudo: required
 
 env:
     global:
-        - DOCKER_COMPOSE_VERSION=1.11.2
+        - DOCKER_COMPOSE_VERSION=1.17.1
 services:
         - docker
 
@@ -11,12 +11,10 @@ before_install:
     - curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
     - chmod +x docker-compose
     - sudo mv docker-compose /usr/local/bin
-    - docker pull appropriate/curl:latest
 
 script:
-    - bats test/test.full.bats
-    - bats test/test.mysql.bats
-    - bats test/test.sqlite.bats
+  - docker-compose build
+
 after_success:
 - if [ "$TRAVIS_BRANCH" == "master" ]; then docker tag vatusa/status vatusa/status:latest;
   docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"; docker push vatusa/status:latest;
@@ -24,5 +22,3 @@ after_success:
 - if [ "$TRAVIS_BRANCH" == "develop" ]; then docker tag vatusa/status vatusa/status:devel;
   docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"; docker push vatusa/status:devel;
   fi
-notifications:
-  email: false
