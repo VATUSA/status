@@ -7,6 +7,6 @@ services:
       args:
       - cachet_ver=master
     ports:
-    - 5050:80
+      - '5050:80'
     image: vatusa/status
     restart: on-failure
